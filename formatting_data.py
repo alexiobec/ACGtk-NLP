@@ -1,20 +1,21 @@
-from nltk.corpus import treebank
 from nltk.tag import hmm
 
 
 class Rule:
-    def __init__(self, tag_beg, tag_end, probability=1):
+    def __init__(self, tag_beg, tag_end, probability, logproba):
         self.beg = tag_beg
         self.end = tag_end
         self.proba = probability
+        self.logproba = logproba
 
 
 class Word:
-    def __init__(self, text, tag, previousWord, proba):
+    def __init__(self, text, tag, previousWord, proba, logproba):
         self.text = text
         self.tag = tag
         self.proba = proba
         self.prev = previousWord
+        self.logproba = logproba
 
 
 def totallettres(arr):
@@ -27,8 +28,17 @@ def totallettres(arr):
 
 
 def clean(str):
-    return(str)
-    return(str.replace("'", "_APO_").replace('`', "_NAPO_").replace('.', "__DOT_").replace('-', "_HYPHEN_").replace(',', "_COMMA_").replace('1', "_NBR_").replace(':', "_COLON_").replace('(', "_BEGPAR_").replace(')', "_ENDPAR_").replace('2', "_NBR_").replace('9', "_NBR_").replace('3', "_NBR_").replace('7', "_NBR_").replace('4', "_NBR_").replace('6', "_NBR_").replace('8', "_NBR_").replace('$', "_DOLLAR_").replace('0', "_NBR_").replace('5', "_NBR_").replace('&', "_AND_").replace('?', "_INTT_").replace(';', "_SEMCOL_").replace('!', "_EXCL_").replace('/', "_SLASH_"))
+    i = 0
+    while i < len(str):
+        if str[i].isdigit():
+            beg = i
+            end = i
+            while end < len(str) and (str[end].isdigit() or str[end] in {",", ".", "-"}):
+                end += 1
+            str = f"{str[:beg]}_NBR_{str[end:]}"
+        i += 1
+    return(str.replace("'", "_APO_").replace('`', "_NAPO_").replace('.', "__DOT_").replace('-', "_HYPHEN_").replace(',', "_COMMA_").replace(':', "_COLON_").replace('(', "_BEGPAR_").replace(')', "_ENDPAR_").replace('$', "_DOLLAR_").replace('&', "_AND_").replace('?', "_INTT_").replace(';', "_SEMCOL_").replace('!', "_EXCL_").replace('/', "_SLASH_"))
+    # .replace('1', "_NBR_").replace('0', "_NBR_").replace('5', "_NBR_").replace('2', "_NBR_").replace('9', "_NBR_").replace('3', "_NBR_").replace('7', "_NBR_").replace('4', "_NBR_").replace('6', "_NBR_").replace('8', "_NBR_")
 
 
 def get_lists(supervised_train_data):
@@ -41,17 +51,21 @@ def get_lists(supervised_train_data):
     rule_list = []
     for i, t1 in enumerate(tag_list):
         for j, t2 in enumerate(tag_list):
-            prob = -tagger._transitions[t1].logprob(t2)
+            prob = tagger._transitions[t1].prob(t2)
+            logprob = -tagger._transitions[t1].logprob(t2)
             if prob != 0.0:
-                rule_list.append(Rule(clean(t1), clean(t2), prob))
+                rule_list.append(Rule(clean(t1), clean(t2), prob, logprob))
 
     # Create word list
     word_list = []
-    prev_word = "start"
+    prev_word = "BEG"
     for word in lexic:
         for tag in tag_list:
-            w = Word(clean(word), clean(tag), prev_word, -
-                     tagger._output_logprob(word, tag))
-            word_list.append(w)
+            prob = tagger._outputs[tag].prob(word)
+            logprob = -tagger._output_logprob(word, tag)
+            w = Word(clean(word), clean(tag), prev_word, prob, logprob)
+            if prob != 0.0:
+                word_list.append(w)
             prev_word = w
+    word_list.sort(key=lambda x: x.text)
     return([tag_list, rule_list, word_list])

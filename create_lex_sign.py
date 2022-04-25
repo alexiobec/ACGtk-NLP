@@ -4,7 +4,7 @@ dirname = os.path.dirname(__file__)
 
 def create_lexic(name, language, tag_list, rule_list, word_list):
     fichier = open(f"{dirname}/lex_sign/{name}_lexic_{language}.pacg", "w")
-    fichier.write(str_tot(tag_list, rule_list, word_list))
+    fichier.write(str_tot(name, rule_list, word_list))
     fichier.close()
 
 
@@ -26,7 +26,7 @@ def rule_def(rule_list):
 def word_def(word_list):
     words_str = ""
     for word in word_list:
-        if word.prev == "start":
+        if word.prev == "BEG":
             line = f"\tstart_{word.text}_{word.tag}:={word.text}\n"
         else:
             line = f"\t{word.prev.tag}_{word.text}_{word.tag}:={word.text}\n"
@@ -34,5 +34,5 @@ def word_def(word_list):
     return(words_str+"\n")
 
 
-def str_tot(tag_list, rule_list, word_list):
-    return(f"lexicon:Strings =\n\n{tag_def(tag_list)}{rule_def(rule_list)}{word_def(word_list)}end")
+def str_tot(name, rule_list, word_list):
+    return(f"{name}_lexic:Strings =\n\n{rule_def(rule_list)}{word_def(word_list)}end")

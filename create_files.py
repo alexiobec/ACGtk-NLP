@@ -56,23 +56,38 @@ def load_pos(num_sents):
 train_data = load_pos(1000)[0]
 
 
-def create_files_from_scratch(name, language, labelled_text):
+def create_files_from_scratch(name, language, labelled_text, typeprob="logprob"):
     tag_list, rule_list, word_list = _fmt.get_lists(labelled_text)
     create_files(name, language, tag_list, rule_list,
-                 word_list, tag=True, str=True, lexic=True)
+                 word_list, typeprob=typeprob)
     print("Writing done !")
 
 
-def create_files(name, language, tag_list, rule_list, word_list, tag=True, str=True, lexic=True):
+def create_files(name, language, tag_list, rule_list, word_list, tag=True, str=True, lexic=True, typeprob="logprob"):
+    """
+    Create the files for the lexicon, the tagger and the string
+    :param name: name of the project
+    :param language: language of the project
+    :param tag_list: list of tags
+    :param rule_list: list of rules
+    :param word_list: list of words
+    :param tag: boolean to create the tagger
+    :param str: boolean to create the string
+    :param lexic: boolean to create the lexicon
+    :param typeprob: type of probability can be "prob" or "logprob" or another string to not show the probabilities
+    """
     if lexic:
-        _lex.create_lexic(name, language, tag_list, rule_list, word_list)
+        _lex.create_lexic(name, language, tag_list,
+                          rule_list, word_list)
     if str:
         _str.create_str_sign(name, language, word_list)
     if tag:
-        _tag.create_tag_sign(name, language, tag_list, rule_list, word_list)
+        _tag.create_tag_sign(name, language, tag_list,
+                             rule_list, word_list, typeprob)
 
 
-create_files_from_scratch("labelled_test", "en", train_data)
+create_files_from_scratch("labelled_test", "en",
+                          train_data, typeprob="prob")
 
 # print(_fmt.get_lists(tagged_text,train_tagged_words))
 # create_files_from_scratch("test_new","en",tagged_text)
