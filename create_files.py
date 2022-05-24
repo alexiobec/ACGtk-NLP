@@ -3,34 +3,15 @@ import create_lex_sign as _lex
 import create_tag_sign as _tag
 import create_str_sign as _str
 import formatting_data as _fmt
-import nltk
-from nltk.corpus import treebank
-from nltk.tag import hmm
-import numpy as np
-from sklearn.model_selection import train_test_split
+from nltk.corpus import brown
 
 
-class Rule:
-    def __init__(self, tag_beg, tag_end, probability):
-        self.beg = tag_beg
-        self.end = tag_end
-        self.proba = probability
-        self.count = 1
-
-
-class Word:
-    def __init__(self, text, tag, previousWord, proba):
-        self.text = text
-        self.tag = tag
-        self.proba = proba
-        self.prev = previousWord
-
-
-# Train data - pretagged
-#train_data = treebank.tagged_sents()[:1000]
-
-def load_pos(num_sents):
-    from nltk.corpus import brown
+def load_pos(num_sents, corpus="brown"):
+    """
+    :param num_sents: number of sentences to load
+    :param corpus: corpus to load from
+    :return: list of sentences
+    """
 
     sentences = brown.tagged_sents(categories="news")[:num_sents]
 
@@ -53,10 +34,13 @@ def load_pos(num_sents):
     return cleaned_sentences, list(tag_set), list(symbols)
 
 
-train_data = load_pos(1000)[0]
+train_data = load_pos(3000)[0]
 
 
 def create_files_from_scratch(name, language, labelled_text, typeprob="logprob"):
+    """
+    Create the files for the lexicon, the tagger and the string from a labelled text
+    """
     tag_list, rule_list, word_list = _fmt.get_lists(labelled_text)
     create_files(name, language, tag_list, rule_list,
                  word_list, typeprob=typeprob)
@@ -77,7 +61,7 @@ def create_files(name, language, tag_list, rule_list, word_list, tag=True, str=T
     :param typeprob: type of probability can be "prob" or "logprob" or another string to not show the probabilities
     """
     if lexic:
-        _lex.create_lexic(name, language, tag_list,
+        _lex.create_lexic(name, language,
                           rule_list, word_list)
     if str:
         _str.create_str_sign(name, language, word_list)
@@ -88,6 +72,3 @@ def create_files(name, language, tag_list, rule_list, word_list, tag=True, str=T
 
 create_files_from_scratch("labelled_test", "en",
                           train_data, typeprob="prob")
-
-# print(_fmt.get_lists(tagged_text,train_tagged_words))
-# create_files_from_scratch("test_new","en",tagged_text)

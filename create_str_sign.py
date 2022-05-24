@@ -3,12 +3,19 @@ dirname = os.path.dirname(__file__)
 
 
 def create_str_sign(name, language, word_list):
+    """
+    :param name: name for the file 
+    :param language: language of the text
+    :param word_list: list of words
+    :return: the string signature file
+    """
     fichier = open(f"{dirname}/str_sign/{name}_sign_str_{language}.pacg", "w")
     fichier.write(str_tot(word_list))
     fichier.close()
 
 
 def word_tag(word_list):
+    """:return: the string used in the string signature file"""
     words_str = word_list[0].text
     prev = word_list[0]
     for word in word_list[1:]:

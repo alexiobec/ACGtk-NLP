@@ -2,13 +2,24 @@ import os
 dirname = os.path.dirname(__file__)
 
 
-def create_lexic(name, language, tag_list, rule_list, word_list):
+def create_lexic(name, language, rule_list, word_list):
+    """
+    :param name: name for the file to create, it will be of the form "name"_lexic.pacg
+    :param language: language of the sentences
+    :param rule_list: list of rules
+    :param word_list: list of words
+    :return: the lexicon file
+    """
     fichier = open(f"{dirname}/lex_sign/{name}_lexic_{language}.pacg", "w")
     fichier.write(str_tot(name, rule_list, word_list))
     fichier.close()
 
 
 def tag_def(tag_list):
+    """
+    :param tag_list: list of tags
+    :return: the "tag string" to create the lexicon 
+    """
     str_tag = "\t"+str(tag_list[0])
     for tag in tag_list[1:]:
         str_tag += ',' + str(tag)
@@ -16,6 +27,10 @@ def tag_def(tag_list):
 
 
 def rule_def(rule_list):
+    """
+    :param rule_list: list of rules
+    :return: the "rule string" to create the lexicon
+    """
     rules_str = "\t"
     for rule in rule_list:
         rules_str += str(rule.beg) + str(rule.end) + ","
@@ -24,6 +39,10 @@ def rule_def(rule_list):
 
 
 def word_def(word_list):
+    """
+    :param word_list: list of the words
+    :return: the "word string" to create the lexicon
+    """
     words_str = ""
     for word in word_list:
         if word.prev == "BEG":
@@ -35,4 +54,10 @@ def word_def(word_list):
 
 
 def str_tot(name, rule_list, word_list):
+    """
+    :param name: name for the file to create, it will be of the form "name"_lexic.pacg
+    :param rule_list: list of rules
+    :param word_list: list of words
+    :return: the lexicon file
+    """
     return(f"{name}_lexic:Strings =\n\n{rule_def(rule_list)}{word_def(word_list)}end")
