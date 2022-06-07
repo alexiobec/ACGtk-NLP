@@ -21,7 +21,7 @@ def word_tag(word_list):
     for word in word_list[1:]:
         if word.text != prev.text:
             if word.text[0] != prev.text[0]:
-                words_str += "\n\n\t"
+                words_str += "\n\t"
             else:
                 words_str += ", "
             words_str += word.text

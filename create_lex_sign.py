@@ -4,7 +4,7 @@ dirname = os.path.dirname(__file__)
 
 def create_lexic(name, language, rule_list, word_list):
     """
-    :param name: name for the file to create, it will be of the form "name"_lexic.pacg
+    :param name: name for the file to create, it will be of the form "name"_lexic_"language".pacg
     :param language: language of the sentences
     :param rule_list: list of rules
     :param word_list: list of words
@@ -44,11 +44,17 @@ def word_def(word_list):
     :return: the "word string" to create the lexicon
     """
     words_str = ""
+    memory = []
     for word in word_list:
         if word.prev == "BEG":
+            # if [word.text, word.tag] not in memory:
             line = f"\tstart_{word.text}_{word.tag}:={word.text}\n"
+            #memory.append([word.text, word.tag])
         else:
+            # f [word.prev.tag, word.text, word.tag] not in memory:
             line = f"\t{word.prev.tag}_{word.text}_{word.tag}:={word.text}\n"
+            #memory.append([word.prev.tag, word.text, word.tag])
+
         words_str += line
     return(words_str+"\n")
 

@@ -1,6 +1,3 @@
-from nltk.tag import hmm
-
-
 class Rule:
     def __init__(self, tag_beg, tag_end, probability, logproba):
         self.beg = tag_beg
@@ -51,15 +48,20 @@ def clean(word):
         .replace('!', "_EXCL_").replace('/', "_SLASH_")
 
 
-def get_lists(supervised_train_data):
+def get_lists(tagger, text):
     """
     :param supervised_train_data: list of tuples (word, tag)
     :return: lists of words, tags and rules
     """
-    trainer = hmm.HiddenMarkovModelTrainer()
-    tagger = trainer.train_supervised(supervised_train_data)
-    tag_list = tagger._states
-    lexic = tagger._symbols
+    # tag_list = tagger._states
+    # lexic = tagger._symbols
+
+    # here you can choose between several way to tag the text, with the .tag(text), .best_path(text) or .best_path_simple(text) (see https://www.nltk.org/api/nltk.tag.hmm.html for more explanations)
+    tag_list = tagger.best_path_simple(text)
+
+    tag_list = list(set(tag_list))
+    lexic = list(set(text))
+    print(tag_list, lexic)
 
     # Create rule list
     rule_list = []
@@ -69,11 +71,12 @@ def get_lists(supervised_train_data):
             logprob = -tagger._transitions[t1].logprob(t2)
             if prob != 0.0:
                 rule_list.append(Rule(clean(t1), clean(t2), prob, logprob))
-
+    if type(text[0]) != 'tuple':
+        text = [(word, '') for word in text]
     # Create word list
     word_list = []
     prev_word = "BEG"
-    for word in lexic:
+    for (word, _) in text:
         for tag in tag_list:
             prob = tagger._outputs[tag].prob(word)
             logprob = -tagger._output_logprob(word, tag)
@@ -81,5 +84,7 @@ def get_lists(supervised_train_data):
             if prob != 0.0:
                 word_list.append(w)
             prev_word = w
+
     word_list.sort(key=lambda x: x.text)
-    return([tag_list, rule_list, word_list])
+    print([tag_list, rule_list, word_list])
+    return [tag_list, rule_list, word_list]
