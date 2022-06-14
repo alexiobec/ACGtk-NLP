@@ -10,9 +10,9 @@ def create_lexic(name, language, rule_list, word_list):
     :param word_list: list of words
     :return: the lexicon file
     """
-    fichier = open(f"{dirname}/lex_sign/{name}_lexic_{language}.pacg", "w")
-    fichier.write(str_tot(name, rule_list, word_list))
-    fichier.close()
+    file = open(f"{dirname}/lex_sign/{name}_lexic_{language}.pacg", "w")
+    file.write(str_tot(name, rule_list, word_list))
+    file.close()
 
 
 def tag_def(tag_list):

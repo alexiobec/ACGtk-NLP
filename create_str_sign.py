@@ -9,9 +9,9 @@ def create_str_sign(name, language, word_list):
     :param word_list: list of words
     :return: the string signature file
     """
-    fichier = open(f"{dirname}/str_sign/{name}_sign_str_{language}.pacg", "w")
-    fichier.write(str_tot(word_list))
-    fichier.close()
+    file = open(f"{dirname}/str_sign/{name}_sign_str_{language}.pacg", "w")
+    file.write(str_tot(word_list))
+    file.close()
 
 
 def word_tag(word_list):

@@ -1,28 +1,22 @@
-from symtable import Symbol
-from nltk.corpus import treebank
-import nltk
-import re
 import create_lex_sign as _lex
 import create_tag_sign as _tag
 import create_str_sign as _str
 import formatting_data as _fmt
-from nltk.corpus import brown
+import nltk
+import re
 from nltk.tag import hmm
+from nltk.corpus import brown
+from nltk.corpus import treebank
 from nltk.corpus import genesis
-
-
 nltk.download('brown')
-nltk.download("treebank")
 nltk.download("genesis")
+nltk.download('treebank')
+
+# tagset to use for unsupervised training
 tagset = ["ADJ", "ADV", "PRON", "CONJ", "DET", "NOUN", "PONCT", "PRON", "VERB"]
 
-# max_iterations for unsupervised training
-max_iter = 2
-gen_text = genesis.words("french.txt")
-gen_sentences = genesis.sents("french.txt")
 
-
-def load_pos_unsupervised(num_sents=10000, corpus=brown):
+def load_pos_unsupervised(corpus, num_sents=10000):
     """
     :param num_sents: number of sentences to load
     :param corpus: corpus to load from
@@ -44,7 +38,7 @@ def load_pos_unsupervised(num_sents=10000, corpus=brown):
     return cleaned_sentences, list(symbols)
 
 
-def load_pos_supervised(num_sents=10000, corpus=brown):
+def load_pos_supervised(corpus, num_sents=10000):
     """
     :param num_sents: number of sentences to load
     :param corpus: corpus to load from
@@ -71,22 +65,22 @@ def load_pos_supervised(num_sents=10000, corpus=brown):
     return cleaned_sentences, list(tag_set), list(symbols)
 
 
-def train(text=brown, num_sents=1000, supervised=True):
+def train(text, num_sents=10000, supervised=True, max_iter=20):
 
     if supervised:
         train_data, tag_list, symbol_list = load_pos_supervised(
-            num_sents, corpus=text)
+            text, num_sents)
         trainer = hmm.HiddenMarkovModelTrainer(
             states=tag_list, symbols=symbol_list)
 
         tagger = trainer.train_supervised(train_data)
         return tagger, tag_list, symbol_list
-
-    train_data, symbol_list = load_pos_unsupervised(num_sents, corpus=text)
-    trainer = hmm.HiddenMarkovModelTrainer(
-        states=tagset, symbols=symbol_list)
-    tagger = trainer.train_unsupervised(text, max_iterations=max_iter)
-    return tagger, symbol_list
+    else:
+        train_data, symbol_list = load_pos_unsupervised(text, num_sents)
+        trainer = hmm.HiddenMarkovModelTrainer(
+            states=tagset, symbols=symbol_list)
+        tagger = trainer.train_unsupervised(text, max_iterations=max_iter)
+        return tagger, symbol_list
 
 
 def create_files_from_scratch(name, language, tagger, text, typeprob="logprob"):
@@ -120,11 +114,3 @@ def create_files(name, language, tag_list, rule_list, word_list, tag=True, str=T
     if tag:
         _tag.create_tag_sign(name, language, tag_list,
                              rule_list, word_list, typeprob)
-
-
-brown_tagger = train(brown, 100000, True)[0]
-french_tagger = train(gen_sentences, 100000, False)[0]
-
-
-create_files_from_scratch("unlabelled_test", "fr",
-                          french_tagger, ["Je", "mange", "une", "pomme", "."], typeprob="prob")

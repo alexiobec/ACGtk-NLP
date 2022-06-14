@@ -19,7 +19,7 @@ def create_tag_sign(name, language, tag_list, rule_list, word_list, typeprob):
 def tag_type(tag_list):
     """ :return: a string used in the tag file """
     str_tag = "\t"+str(tag_list[0])
-    for tag in tag_list[1:]:
+    for tag in tag_list:
         str_tag += ',' + str(tag)
     return(str_tag+":type;\n\n")
 

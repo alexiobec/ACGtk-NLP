@@ -61,7 +61,6 @@ def get_lists(tagger, text):
 
     tag_list = list(set(tag_list))
     lexic = list(set(text))
-    print(tag_list, lexic)
 
     # Create rule list
     rule_list = []
@@ -86,5 +85,4 @@ def get_lists(tagger, text):
             prev_word = w
 
     word_list.sort(key=lambda x: x.text)
-    print([tag_list, rule_list, word_list])
     return [tag_list, rule_list, word_list]
